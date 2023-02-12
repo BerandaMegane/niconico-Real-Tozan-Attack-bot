@@ -27,12 +27,12 @@ $ vi secret.py
 $ sudo vi /etc/crontab
 
 # 1日ごとに実行
-0  20 *  *  *  ubuntu /usr/bin/python3 /[path]/nico_RTA_bot_snapshot.py
-# 1時間ごとに実行
-0  *  *  *  *  ubuntu /usr/bin/python3 /[path]/nico_RTA_bot_rss.py
+0 20 *  *  *  ubuntu /usr/bin/python3 /[path]/nico_RTA_bot_snapshot.py
+# 10分ごとに実行
+*/10 *  *  *  *  ubuntu /usr/bin/python3 /[path]/nico_RTA_bot_rss.py
 ```
 
-なお、`nico_RTA_bot_rss.py` は1時間ごと、`nico_RTA_bot_snapshot.py`は1日ごとに実行することを想定しています。
+なお、`nico_RTA_bot_rss.py` は10分ごと、`nico_RTA_bot_snapshot.py`は1日ごとに実行することを想定しています。
 
 # 動作に必要なライブラリ等
 これらは全て、開発時のバージョンです。

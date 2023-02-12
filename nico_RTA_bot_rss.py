@@ -114,7 +114,7 @@ def main():
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
     now_dt = datetime.datetime.now(tz=JST)
-    begin_datetime = now_dt - datetime.timedelta(hours=1)
+    begin_datetime = now_dt - datetime.timedelta(minutes=10)
     end_datetime = now_dt
 
     # RTA動画の検索

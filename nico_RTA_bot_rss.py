@@ -114,7 +114,9 @@ def main():
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
     now_dt = datetime.datetime.now(tz=JST)
+    # 投稿後の待機時間
     waiting_time = datetime.timedelta(minutes=30)
+    # 更新チェック間隔時間
     interval_time = datetime.timedelta(minutes=10)
     begin_datetime = now_dt - interval_time - waiting_time
     end_datetime = now_dt - waiting_time

@@ -9,7 +9,7 @@
 2. 必要なPythonおよびライブラリをインストールします
 ```bash
 # pip での実行例
-$ pip3 install feedparser Mastodon.py mojimoji requests tweepy urllib3
+$ pip3 install feedparser Mastodon.py mojimoji requests tweepy twitter-text-parser urllib3
 ```
 
 3. `secret-sample.py` を `secret.py` に名前を変更します
@@ -43,6 +43,7 @@ $ sudo vi /etc/crontab
 * mojimoji 0.0.12
 * requests 2.28.1
 * tweepy 4.12.1
+* twitter-text-parser 2.0.0
 * urllib3 1.25.8
 
 # 運用アカウント・連絡先

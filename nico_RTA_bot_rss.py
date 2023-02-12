@@ -6,6 +6,7 @@ import email.utils
 import feedparser
 from mastodon import Mastodon
 import tweepy
+from twitter_text import parse_tweet
 from urllib.parse import urlparse
 
 # 自作
@@ -65,39 +66,34 @@ def tweet_RTA(sminfo: thumb_info):
     text3 += sminfo.getURL()
 
     # タグの量によっては140文字制限を超えるため、調節する
-    text2 = "タグ:"
-    for tag in sminfo.getTags():
-        text_l = len(text1) + len(text2) + len(text3)
-        tag_l = len(tag)
-        if (text_l + tag_l + 1) < 140:
-            text2 += " " + tag
+    tweet_text = text1 + text3
+    tags = sminfo.getTags()
+    for i in range(1, len(tags)+1):
+        text2 = "タグ: " + " ".join(tags[:i]) + "\n"
+        temp = text1 + text2 + text3
+        if parse_tweet(temp).valid:
+            tweet_text = text1 + text2 + text3
         else:
-            text2 += "\n"
             break
-    else:
-        text2 += "\n"
     
-    text = text1 + text2 + text3
-    print(text)
-
     # 認証と投稿
     auth = tweepy.OAuthHandler(TwitterAPI.consumer_key, TwitterAPI.consumer_secret)
     auth.set_access_token(TwitterAPI.access_token, TwitterAPI.access_token_secret)
     # api = tweepy.API(auth)
     api = tweepy.API(auth,wait_on_rate_limit=True)
-    api.update_status(status=text)
+    api.update_status(status=tweet_text)
 
 
 def toot_RTA(sminfo):
     """指定した動画をマストドンでトゥートする"""
-    text = ""
+    toot_text = ""
     # text += "開発中 テスト投稿\n"
-    text += "《 #リアル登山アタック 新着動画》\n"
-    text += sminfo.getTitle() + "\n"
-    text += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
-    text += "タグ: " + (" ".join(sminfo.getTags())) + "\n"
-    text += "#%s" % sminfo.sm_id + "\n"
-    text += sminfo.getURL()
+    toot_text += "《 #リアル登山アタック 新着動画》\n"
+    toot_text += sminfo.getTitle() + "\n"
+    toot_text += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
+    toot_text += "タグ: " + (" ".join(sminfo.getTags())) + "\n"
+    toot_text += "#%s" % sminfo.sm_id + "\n"
+    toot_text += sminfo.getURL()
 
     # 認証と投稿
     api = Mastodon(
@@ -106,7 +102,7 @@ def toot_RTA(sminfo):
         client_secret = MastodonAPI.client_secret,
         access_token  = MastodonAPI.access_token
     )
-    api.toot(text)
+    api.toot(toot_text)
 
 
 def main():

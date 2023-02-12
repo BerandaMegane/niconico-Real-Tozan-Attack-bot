@@ -64,12 +64,12 @@ def tweet_RTA(sminfo: thumb_info):
     text3 += "#%s" % sminfo.sm_id + "\n"
     text3 += sminfo.getURL()
 
-    # タグの量によっては280文字制限を超えるため、調節する
+    # タグの量によっては140文字制限を超えるため、調節する
     text2 = "タグ:"
     for tag in sminfo.getTags():
         text_l = len(text1) + len(text2) + len(text3)
         tag_l = len(tag)
-        if (text_l + tag_l + 1) < 280:
+        if (text_l + tag_l + 1) < 140:
             text2 += " " + tag
         else:
             text2 += "\n"

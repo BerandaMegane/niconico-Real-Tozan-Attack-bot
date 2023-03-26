@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 import nico_getthumbinfo as thumb_info
 from secret import TwitterAPI
 from secret import MastodonAPI
-
+import ogp_image
 
 """
 # RFC2822 形式の日付
@@ -81,7 +81,16 @@ def tweet_RTA(sminfo: thumb_info):
     auth.set_access_token(TwitterAPI.access_token, TwitterAPI.access_token_secret)
     # api = tweepy.API(auth)
     api = tweepy.API(auth,wait_on_rate_limit=True)
-    api.update_status(status=tweet_text)
+    
+    # OGP og:image よりサムネイル画像を指定する
+    image_path = ogp_image.download_OGP_image(sminfo.getURL(), "")
+    
+    # サムネイル画像が取得できれば画像つきツイートを行う
+    if image_path is not None:
+        media_ids = [api.media_upload(image_path).media_id]
+        api.update_status(status=tweet_text, media_ids=media_ids)
+    else:
+        api.update_status(status=tweet_text)
 
 
 def toot_RTA(sminfo):

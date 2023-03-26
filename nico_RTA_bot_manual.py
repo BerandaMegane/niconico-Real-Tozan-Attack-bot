@@ -8,11 +8,12 @@ import nico_getthumbinfo as thumb_info
 from secret import TwitterAPI
 from secret import MastodonAPI
 from nico_RTA_bot_rss import tweet_RTA
+import ogp_image
 
 def tweet_RTA(sminfo: thumb_info):
     """指定した動画をTwitterでツイートする"""
     text1 = ""
-    # text1 += "テスト投稿\n"
+    text1 += "テスト投稿\n"
     text1 += "（半手動）《 #リアル登山アタック 新着動画》\n"
     text1 += sminfo.getTitle() + "\n"
     text1 += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
@@ -37,7 +38,16 @@ def tweet_RTA(sminfo: thumb_info):
     auth.set_access_token(TwitterAPI.access_token, TwitterAPI.access_token_secret)
     # api = tweepy.API(auth)
     api = tweepy.API(auth,wait_on_rate_limit=True)
-    api.update_status(status=tweet_text)
+    
+    # OGP og:image よりサムネイル画像を指定する
+    image_path = ogp_image.download_OGP_image(sminfo.getURL(), "")
+    
+    # サムネイル画像が取得できれば画像つきツイートを行う
+    if image_path is not None:
+        media_ids = [api.media_upload(image_path).media_id]
+        api.update_status(status=tweet_text, media_ids=media_ids)
+    else:
+        api.update_status(status=tweet_text)
 
 
 def toot_RTA(sminfo: thumb_info):
@@ -62,7 +72,7 @@ def toot_RTA(sminfo: thumb_info):
 
 
 if __name__ == "__main__":
-    sm_id = "sm41791472"
+    sm_id = "sm41887083"
     sm_info = thumb_info.SmileVideoInfo(sm_id)
     tweet_RTA(sm_info)
     toot_RTA(sm_info)

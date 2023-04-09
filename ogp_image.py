@@ -5,6 +5,16 @@ import traceback
 from bs4 import BeautifulSoup
 
 def download_OGP_image(page_url: str, save_dir: str):
+    """
+    指定された URL の OGP Image を指定フォルダにダウンロードする
+
+    Perameters
+    ----------
+    page_url
+        対象URL
+    save_dir
+        画像の保存先ディレクトリ
+    """
     try:
         image_url = fetch_OGP_image_url(page_url)
 
@@ -43,6 +53,19 @@ def download_OGP_image(page_url: str, save_dir: str):
         return None
 
 def fetch_OGP_image_url(page_url: str):
+    """
+    指定 URL の OGP Image の URL を取得する
+    
+    Parameter
+    ---------
+    page_url : str
+        対象 URL
+    
+    Return
+    ------
+    image_url : str
+        画像 URL
+    """
     # OGP og:image を取得するページの指定
     response = requests.get(page_url)
     soup = BeautifulSoup(response.content, features="html.parser")
@@ -53,8 +76,7 @@ def fetch_OGP_image_url(page_url: str):
     return image_url
 
 if __name__ == "__main__":
-    save_dir = r"/home/ubuntu/scripts/niconico-Real-Tozan-Attack-bot/"
+    save_dir = "."
     page_url = "https://www.nicovideo.jp/watch/sm41686885"
     save_path = download_OGP_image(page_url, save_dir)
     print(save_path)
-

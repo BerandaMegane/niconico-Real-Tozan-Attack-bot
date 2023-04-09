@@ -4,6 +4,10 @@ import traceback
 
 from bs4 import BeautifulSoup
 
+"""
+ウェブサイトに設定されているサムネイル画像 OGP Image を取得する
+"""
+
 def download_OGP_image(page_url: str, save_dir: str):
     """
     指定された URL の OGP Image を指定フォルダにダウンロードする

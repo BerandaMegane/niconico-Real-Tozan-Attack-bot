@@ -47,8 +47,6 @@ def searchRTA_RSS(begin_datetime, end_datetime):
         if (begin_datetime <= sm_datetime and sm_datetime <= end_datetime):
             # print("新着!", sm_id, sm_datetime)
             contents_ids.append(sm_id)
-        else:
-            break
     
     return contents_ids
 
@@ -114,7 +112,7 @@ def toot_RTA(sminfo):
     api.toot(toot_text)
 
 
-def main():
+def main(tag_list, run=False):
     """botの実行"""
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
@@ -133,50 +131,72 @@ def main():
         
         # 動画が削除されていれば、スルー
         if not sminfo.isAlive():
-            print("削除?", id)
+            print(id, sminfo.getTitle(), "削除?")
             continue
 
         # 動画がタグロックされていれば、追加する
-        if sminfo.isRTAtagsLock():
-            print("新着!", id, sminfo.getTitle())
-            try:
-                tweet_RTA(sminfo)
-            except:
-                pass
+        if sminfo.isTagsLock(tag_list):
+            print(id, sminfo.getTitle(), "Locked")
+            if run:
+                try:
+                    tweet_RTA(sminfo)
+                except:
+                    pass
 
-            try:
-                toot_RTA(sminfo)
-            except:
-                pass
+                try:
+                    toot_RTA(sminfo)
+                except:
+                    pass
+        else:
+            print(id, sminfo.getTitle(), "Unlocked")
 
-def test():
+def test(tag_list, run=False):
+    """botの実行"""
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
     now_dt = datetime.datetime.now(tz=JST)
-    # 投稿後の待機時間
-    waiting_time = datetime.timedelta(minutes=250)
-    # 更新チェック間隔時間
-    interval_time = datetime.timedelta(minutes=10)
-    begin_datetime = now_dt - interval_time - waiting_time
-    end_datetime = now_dt - waiting_time
+    begin_datetime = datetime.datetime(2023, 4, 23,  0, 0, 0, tzinfo=JST)
+    end_datetime   = datetime.datetime(2023, 4, 23, 11, 0, 0, tzinfo=JST)
+
 
     # RTA動画の検索
     RTA_ids = searchRTA_RSS(begin_datetime, end_datetime)
     for id in RTA_ids:
         sminfo = thumb_info.SmileVideoInfo(id)
-
+        
+        # 動画が削除されていれば、スルー
         if not sminfo.isAlive():
-            print("削除?", id)
+            print(id, sminfo.getTitle(), "削除?")
             continue
 
         # 動画がタグロックされていれば、追加する
-        if sminfo.isRTAtagsLock():
-            print("新着!", id, sminfo.getTitle())
-            # tweet_RTA(sminfo)
+        if sminfo.isTagsLock(tag_list):
+            print(id, sminfo.getTitle(), "Locked")
+            if run:
+                try:
+                    tweet_RTA(sminfo)
+                except:
+                    pass
+
+                try:
+                    toot_RTA(sminfo)
+                except:
+                    pass
+        else:
+            print(id, sminfo.getTitle(), "Unlocked")
+
 
 if __name__ == "__main__":
-    main()
-    # test()
+    tag_list = [
+        "RTA(リアル登山アタック)",
+        "RTA(リアル登山アタック)外伝",
+        "RTA(リアル登山アタック)団体戦",
+        "RTA(リアル登山アタック)技術部",
+        "1分弱登山祭2023F",
+    ]
 
-    # テスト date parser
-    # test_parse_RFC2822_datetime()
+    # ツイートあり
+    main(tag_list, True)
+
+    # ツイートなし
+    # test(tag_list, False)

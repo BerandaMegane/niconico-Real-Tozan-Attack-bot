@@ -52,19 +52,13 @@ class SmileVideoInfo:
         # 指定されたタグがロックされていれば True
         return "lock" in tag.attrib and tag.attrib["lock"] == "1"
         
-    def isRTAtagsLock(self) -> bool:
+    def isTagsLock(self, tag_list) -> bool:
         # リアル登山アタック関連タグがロックされていれば True
         tags = self.root.find("thumb").find("tags")
         # print(tags)
         for tag in tags:
             # print(tag.text, tag.attrib)
-            match_tag_names = [
-                "RTA(リアル登山アタック)",
-                "RTA(リアル登山アタック)外伝",
-                "RTA(リアル登山アタック)団体戦",
-                "RTA(リアル登山アタック)技術部",
-            ]
-            for name in match_tag_names:
+            for name in tag_list:
                 if self.isEqualTagName(tag.text, name) and self.isTagLock(tag):
                     return True
         else:
@@ -100,8 +94,17 @@ class SmileVideoInfo:
 
 if __name__ == "__main__":
     test_sm = SmileVideoInfo("sm41686885")
+    
+    tag_list = [
+        "RTA(リアル登山アタック)",
+        "RTA(リアル登山アタック)外伝",
+        "RTA(リアル登山アタック)団体戦",
+        "RTA(リアル登山アタック)技術部",
+        "1分弱登山祭2023F",
+    ]
+
     print(test_sm.getThumbInfo())
-    print(test_sm.isRTAtagsLock())
+    print(test_sm.isTagsLock(tag_list))
     print(test_sm.isAlive())
     print(test_sm.getTitle())
     print(test_sm.getDatetime())

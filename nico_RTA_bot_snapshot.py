@@ -14,7 +14,7 @@ from secret import TwitterAPI
 from secret import MastodonAPI
 import ogp_image
 
-def searchRtaSnapshotApi(begin_datetime, end_datetime) -> list:
+def searchTagsSnapshotApi(tag_list, begin_datetime, end_datetime) -> list:
     """リアル登山アタック動画を Snapshot API 経由で検索し、結果を返す
 
     参考: Qiita - python:requestsでニコニコ動画APIを使う
@@ -31,19 +31,22 @@ def searchRtaSnapshotApi(begin_datetime, end_datetime) -> list:
             "field": "startTime",
             "from": begin_datetime.isoformat(timespec="seconds"),
             "to": end_datetime.isoformat(timespec="seconds"),
-            "include_lower": True
+            "include_lower": True,  # fromを含めるならTrue
+            "include_upper": False, # toを含めるならTrue
         }
     )
     # print(json_filter)
 
+    query_tags = " OR ".join(tag_list)
+
     # 並び替え条件の設定
     query_param = {
-        "q": "RTA(リアル登山アタック) OR RTA(リアル登山アタック)外伝 OR RTA(リアル登山アタック)団体戦 OR RTA(リアル登山アタック)技術部",
+        "q": query_tags,
         "targets": "tags",
         "fields": "contentId",
         "jsonFilter": json_filter,
         "_sort": "-startTime",  # 投稿が新しい順
-        "_limit": 50,
+        "_limit": 100,
     }
 
     # カスタムヘッダの指定（指定が推奨されているらしい）
@@ -137,7 +140,7 @@ def toot_RTA(sminfo: thumb_info):
     api.toot(text)
 
 
-def main():
+def main(tag_list, run=False):
     """botの実行"""
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
@@ -146,54 +149,78 @@ def main():
     end_datetime = datetime.datetime(now_dt.year, now_dt.month, now_dt.day, 0, 0, 0, tzinfo=JST)
 
     # RTA動画の検索
-    RTA_ids = searchRtaSnapshotApi(begin_datetime, end_datetime)
+    RTA_ids = searchTagsSnapshotApi(tag_list, begin_datetime, end_datetime)
     for id in RTA_ids:
         sminfo = thumb_info.SmileVideoInfo(id)
         
         # 動画が削除されていれば飛ばす
         if not sminfo.isAlive():
-            print("削除?", id)
+            print(id, sminfo.getTitle(), "削除?")
             continue
 
         # 動画がタグロックされていれば、追加する
-        if sminfo.isRTAtagsLock():
-            print("新着!", id, sminfo.getTitle())
-            try:
-                tweet_RTA(sminfo)
-            except:
-                pass
+        if sminfo.isTagsLock(tag_list):
+            print(id, sminfo.getTitle(), "Locked")
+            if run:
+                try:
+                    tweet_RTA(sminfo)
+                except:
+                    pass
 
-            try:
-                toot_RTA(sminfo)
-            except:
-                pass
+                try:
+                    toot_RTA(sminfo)
+                except:
+                    pass
+        else:
+            print(id, sminfo.getTitle(), "Unlocked")
 
 
-def test():
+def test(tag_list, run=False):
+    """botの実行"""
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
     now_dt = datetime.datetime.now(tz=JST)
-    begin_datetime = datetime.datetime(now_dt.year, now_dt.month, now_dt.day-2, 17, 0, 0, tzinfo=JST)
-    end_datetime = datetime.datetime(now_dt.year, now_dt.month, now_dt.day, 0, 0, 0, tzinfo=JST)
+    begin_datetime = datetime.datetime(2023, 4, 22, 0, 0, 0, tzinfo=JST)
+    end_datetime   = datetime.datetime(2023, 4, 23, 0, 0, 0, tzinfo=JST)
 
     # RTA動画の検索
-    RTA_ids = searchRtaSnapshotApi(begin_datetime, end_datetime)
+    RTA_ids = searchTagsSnapshotApi(tag_list, begin_datetime, end_datetime)
     for id in RTA_ids:
         sminfo = thumb_info.SmileVideoInfo(id)
-
+        
+        # 動画が削除されていれば飛ばす
         if not sminfo.isAlive():
-            print("削除?", id)
+            print(id, sminfo.getTitle(), "削除?")
             continue
 
         # 動画がタグロックされていれば、追加する
-        if sminfo.isRTAtagsLock():
-            print("新着!", id, sminfo.getTitle())
-            # tweet_RTA(sminfo)
-            # toot_RTA(sminfo)
+        if sminfo.isTagsLock(tag_list):
+            print(id, sminfo.getTitle(), "Locked")
+            if run:
+                try:
+                    tweet_RTA(sminfo)
+                except:
+                    pass
+
+                try:
+                    toot_RTA(sminfo)
+                except:
+                    pass
+        else:
+            print(id, sminfo.getTitle(), "Unlocked")
+
 
 if __name__ == "__main__":
-    # test()
-    main()
-    # print(searchRTA())
-    # sminfo = thumb_info.SmileVideoInfo("sm41686885")
-    # tweet_RTA(sminfo)
+    tag_list = [
+        "RTA(リアル登山アタック)",
+        "RTA(リアル登山アタック)外伝",
+        "RTA(リアル登山アタック)団体戦",
+        "RTA(リアル登山アタック)技術部",
+        "1分弱登山祭2023F",
+    ]
+
+    # ツイートあり
+    main(tag_list, True)
+
+    # ツイートなし
+    # test(tag_list, False)

@@ -13,8 +13,8 @@ import ogp_image
 def tweet_RTA(sminfo: thumb_info):
     """指定した動画をTwitterでツイートする"""
     text1 = ""
-    text1 += "テスト投稿\n"
-    text1 += "（半手動）《 #リアル登山アタック 新着動画》\n"
+    # text1 += "テスト投稿\n"
+    text1 += "（半手動）《 #1分弱登山祭2023F 動画》\n"
     text1 += sminfo.getTitle() + "\n"
     text1 += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
     
@@ -54,7 +54,7 @@ def toot_RTA(sminfo: thumb_info):
     """指定した動画をマストドンでトゥートする"""
     text = ""
     # text += "開発中 テスト投稿\n"
-    text += "（半手動）《 #リアル登山アタック 新着動画》\n"
+    text += "（半手動）《 #1分弱登山祭2023F 動画》\n"
     text += sminfo.getTitle() + "\n"
     text += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
     text += "タグ: " + (" ".join(sminfo.getTags())) + "\n"
@@ -71,8 +71,42 @@ def toot_RTA(sminfo: thumb_info):
     api.toot(text)
 
 
+def tweet_toot_RTAs(sm_ids):
+    for sm_id in sm_ids:
+        sm_info = thumb_info.SmileVideoInfo(sm_id)
+        print(sm_info.sm_id, "処理中")
+        tweet_RTA(sm_info)
+        toot_RTA(sm_info)
+
 if __name__ == "__main__":
-    sm_id = "sm41887083"
-    sm_info = thumb_info.SmileVideoInfo(sm_id)
-    tweet_RTA(sm_info)
-    toot_RTA(sm_info)
+    # sm_id = "sm41887083"
+    # sm_info = thumb_info.SmileVideoInfo(sm_id)
+    # tweet_RTA(sm_info)
+    # toot_RTA(sm_info)
+
+    sm_ids = [
+        "sm42076217",
+        "sm42120467",
+        "sm42119878",
+        "sm42119846",
+        "sm42116024",
+        "sm42118338",
+        "sm42118564",
+        "sm42115563",
+        "sm42118511",
+        "sm42118291",
+        "sm42078541",
+        "sm42117216",
+        "sm42075134",
+        "sm42114605",
+        "sm42111201",
+        "sm42078576",
+        "sm42068223",
+        "sm42099322",
+        "sm42110043",
+        "sm42075038",
+        "sm42109057",
+        "sm42104526",
+        "sm42016440",
+    ]
+    tweet_toot_RTAs(sm_ids)    

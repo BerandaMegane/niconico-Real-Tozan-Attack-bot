@@ -1,13 +1,13 @@
 # 公式
 import datetime
 import email.utils
+import urllib.parse
 
 # サードパーティ
 import feedparser
 from mastodon import Mastodon
 import tweepy
 from twitter_text import parse_tweet
-from urllib.parse import urlparse
 
 # 自作
 import nico_getthumbinfo as thumb_info
@@ -31,25 +31,32 @@ def test_parse_RFC2822_datetime():
     print(test_date_str)
     print(parse_RFC2822_datetime(test_date_str))
 
+def searchTag_RSS(tag_name, begin_datetime, end_datetime):
+    # タグ検索
+    rss = feedparser.parse("https://www.nicovideo.jp/tag/%s?sort=f&order=d&rss=2.0" % urllib.parse.quote(tag_name))
 
-def searchRTA_RSS(begin_datetime, end_datetime):
-    """リアル登山アタック動画を RSS 経由で検索し、結果を返す"""
-    
-    # タグ検索「RTA（リアル登山アタック）」
-    rss = feedparser.parse("https://www.nicovideo.jp/tag/RTA%EF%BC%88%E3%83%AA%E3%82%A2%E3%83%AB%E7%99%BB%E5%B1%B1%E3%82%A2%E3%82%BF%E3%83%83%E3%82%AF%EF%BC%89?sort=f&order=d&rss=2.0")
-
-    contents_ids = list()
+    content_ids = list()
     for entry in rss.entries:
-        nico_url = urlparse(entry.link)
+        nico_url = urllib.parse.urlparse(entry.link)
         sm_id = nico_url.path.split("/")[-1]
         sm_datetime = parse_RFC2822_datetime(entry.published)
 
         if (begin_datetime <= sm_datetime and sm_datetime <= end_datetime):
-            # print("新着!", sm_id, sm_datetime)
-            contents_ids.append(sm_id)
-    
-    return contents_ids
+            content_ids.append(sm_id)
 
+    return content_ids
+
+def searchRTA_RSS(tag_list, begin_datetime, end_datetime):
+    """リアル登山アタック動画を RSS 経由で検索し、結果を返す"""
+    
+    content_ids = list()
+    for tag_name in tag_list:
+        temp_ids = searchTag_RSS(tag_name, begin_datetime, end_datetime)
+        for id in temp_ids:
+            if id not in content_ids:
+                content_ids.append(id)
+
+    return content_ids
 
 def tweet_RTA(sminfo: thumb_info):
     """指定した動画をTwitterでツイートする"""
@@ -125,7 +132,7 @@ def main(tag_list, run=False):
     end_datetime = now_dt - waiting_time
 
     # RTA動画の検索
-    RTA_ids = searchRTA_RSS(begin_datetime, end_datetime)
+    RTA_ids = searchRTA_RSS(tag_list, begin_datetime, end_datetime)
     for id in RTA_ids:
         sminfo = thumb_info.SmileVideoInfo(id)
         
@@ -160,7 +167,7 @@ def test(tag_list, run=False):
 
 
     # RTA動画の検索
-    RTA_ids = searchRTA_RSS(begin_datetime, end_datetime)
+    RTA_ids = searchRTA_RSS(tag_list, begin_datetime, end_datetime)
     for id in RTA_ids:
         sminfo = thumb_info.SmileVideoInfo(id)
         

@@ -1,15 +1,16 @@
-import os
-import requests
+# 公式
 import traceback
 import tempfile
 
+# サードパーティ
+import requests
 from bs4 import BeautifulSoup
 
 """
 ウェブサイトに設定されているサムネイル画像 OGP Image を取得する
 """
 
-def download_OGP_image(page_url: str, temp_path: str):
+def download_OGP_image(page_url: str, fp):
     """
     指定された URL の OGP Image を指定フォルダにダウンロードする
 
@@ -17,8 +18,8 @@ def download_OGP_image(page_url: str, temp_path: str):
     ----------
     page_url
         対象URL
-    file_path
-        一時ファイルのパス
+    fp
+        ファイルオブジェクト
     """
     try:
         image_url = fetch_OGP_image_url(page_url)
@@ -39,8 +40,9 @@ def download_OGP_image(page_url: str, temp_path: str):
         
         # ダウンロード
         data = res.content
-        with open(temp_path, "w+b") as fp:
-            fp.write(data)
+        fp.write(data)
+        fp.flush()
+        fp.seek(0)
     
         return fp.name
     

@@ -1,6 +1,8 @@
+# 公式
 import datetime
 import xml.etree.ElementTree as ET
 
+# サードパーティ
 import requests
 import mojimoji
 
@@ -8,6 +10,9 @@ import mojimoji
 # 参考URL
 * Qiita - python:requestsでニコニコ動画APIを使う
 https://qiita.com/be_tiger/items/a086380121a5cefe6eef
+
+* ニコニコ大百科 - ニコニコ動画API（APIリファレンス）
+https://dic.nicovideo.jp/a/%E3%83%8B%E3%82%B3%E3%83%8B%E3%82%B3%E5%8B%95%E7%94%BBapi
 """
 
 class SmileVideoInfo:
@@ -82,6 +87,10 @@ class SmileVideoInfo:
     def getAuthor(self) -> str:
         # 投稿者名
         return self.getThumbInfoAtrrib("user_nickname")
+    
+    def getAuthorId(self) -> str:
+        # 投稿者ID
+        return self.getThumbInfoAtrrib("user_id")
     
     def getURL(self) -> str:
         # 動画URL

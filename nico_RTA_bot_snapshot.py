@@ -1,6 +1,7 @@
 # 公式
 import datetime
 import json
+import tempfile
 
 # サードパーティ
 from mastodon import Mastodon
@@ -84,23 +85,21 @@ def tweet_RTA(sminfo: thumb_info):
     text1 = ""
     # text1 += "テスト投稿\n"
     text1 += "《 #リアル登山アタック 昨日の新着動画》\n"
-    text1 += sminfo.getTitle() + "\n"
-    text1 += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
+    text1 += "%s\n" % sminfo.getTitle()
+    text1 += "投稿者: %s さん\n" % sminfo.getAuthor()
     
-    text3 = ""
-    text3 += "#%s" % sminfo.sm_id + "\n"
-    text3 += sminfo.getURL()
+    text3 = "#%s %s" % (sminfo.sm_id, sminfo.getURL())
 
     # タグの量によっては140文字制限を超えるため、調節する
     tweet_text = text1 + text3
-    tags = sminfo.getTags()
-    for i in range(1, len(tags)+1):
-        text2 = "タグ: " + " ".join(tags[:i]) + "\n"
-        temp = text1 + text2 + text3
-        if parse_tweet(temp).valid:
-            tweet_text = text1 + text2 + text3
-        else:
-            break
+    # tags = sminfo.getTags()
+    # for i in range(1, len(tags)+1):
+    #     text2 = "タグ: %s\n" % (" ".join(tags[:i]))
+    #     temp = text1 + text2 + text3
+    #     if parse_tweet(temp).valid:
+    #         tweet_text = text1 + text2 + text3
+    #     else:
+    #         break
 
     # 認証と投稿
     auth = tweepy.OAuthHandler(TwitterAPI.consumer_key, TwitterAPI.consumer_secret)
@@ -109,8 +108,9 @@ def tweet_RTA(sminfo: thumb_info):
     api = tweepy.API(auth,wait_on_rate_limit=True)
     
     # OGP og:image よりサムネイル画像を指定する
-    image_path = ogp_image.download_OGP_image(sminfo.getURL(), "")
-    
+    fd, temp_path = tempfile.mkstemp()
+    image_path = ogp_image.download_OGP_image(sminfo.getURL(), temp_path)
+        
     # サムネイル画像が取得できれば画像つきツイートを行う
     if image_path is not None:
         media_ids = [api.media_upload(image_path).media_id]
@@ -125,11 +125,10 @@ def toot_RTA(sminfo: thumb_info):
     text = ""
     # text += "テスト投稿\n"
     text += "《 #リアル登山アタック 昨日の新着動画》\n"
-    text += sminfo.getTitle() + "\n"
-    text += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
-    text += "タグ: " + (" ".join(sminfo.getTags())) + "\n"
-    text += "#%s" % sminfo.sm_id + "\n"
-    text += sminfo.getURL()
+    text += "%s\n" % sminfo.getTitle()
+    text += "投稿者: %s さん\n" % sminfo.getAuthor()
+    # text += "タグ: %s\n" % " ".join(sminfo.getTags())
+    text += "#%s %s" % (sminfo.sm_id, sminfo.getURL())
 
     api = Mastodon(
         api_base_url  = MastodonAPI.server,
@@ -180,8 +179,8 @@ def test(tag_list, run=False):
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
     now_dt = datetime.datetime.now(tz=JST)
-    begin_datetime = datetime.datetime(2023, 4, 22, 0, 0, 0, tzinfo=JST)
-    end_datetime   = datetime.datetime(2023, 4, 23, 0, 0, 0, tzinfo=JST)
+    begin_datetime = datetime.datetime(2023, 4, 21, 0, 0, 0, tzinfo=JST)
+    end_datetime   = datetime.datetime(2023, 4, 22, 0, 0, 0, tzinfo=JST)
 
     # RTA動画の検索
     RTA_ids = searchTagsSnapshotApi(tag_list, begin_datetime, end_datetime)
@@ -220,7 +219,7 @@ if __name__ == "__main__":
     ]
 
     # ツイートあり
-    main(tag_list, True)
+    # main(tag_list, True)
 
     # ツイートなし
-    # test(tag_list, False)
+    test(tag_list, False)

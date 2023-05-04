@@ -1,6 +1,7 @@
 import os
 import requests
 import traceback
+import tempfile
 
 from bs4 import BeautifulSoup
 
@@ -8,7 +9,7 @@ from bs4 import BeautifulSoup
 ウェブサイトに設定されているサムネイル画像 OGP Image を取得する
 """
 
-def download_OGP_image(page_url: str, save_dir: str):
+def download_OGP_image(page_url: str, temp_path: str):
     """
     指定された URL の OGP Image を指定フォルダにダウンロードする
 
@@ -16,8 +17,8 @@ def download_OGP_image(page_url: str, save_dir: str):
     ----------
     page_url
         対象URL
-    save_dir
-        画像の保存先ディレクトリ
+    file_path
+        一時ファイルのパス
     """
     try:
         image_url = fetch_OGP_image_url(page_url)
@@ -32,25 +33,16 @@ def download_OGP_image(page_url: str, save_dir: str):
         
         # MIMEより拡張子取得
         mimetype = res.headers["content-type"]
-        if "image/png" in mimetype:
-            file_ext = ".png"
-        elif "image/jpeg" in mimetype:
-            file_ext = ".jpg"
-        else:
+        if "image/png" not in mimetype and "image/jpeg" not in mimetype:
             print("MIMEが正常でない")
             return None
         
-        # ダウンロードファイル名
-        save_path = os.path.join(save_dir, "temp_image" + file_ext)
-        
         # ダウンロード
-        with open(save_path, mode='wb') as local_file:
-            data = res.content
-            local_file.write(data)
-
-            return save_path
-        
-        return None
+        data = res.content
+        with open(temp_path, "w+b") as fp:
+            fp.write(data)
+    
+        return fp.name
     
     except Exception as e:
         print(traceback.format_exc())
@@ -80,7 +72,7 @@ def fetch_OGP_image_url(page_url: str):
     return image_url
 
 if __name__ == "__main__":
-    save_dir = "."
-    page_url = "https://www.nicovideo.jp/watch/sm41686885"
-    save_path = download_OGP_image(page_url, save_dir)
-    print(save_path)
+    with tempfile.NamedTemporaryFile("w+b") as fp:
+        page_url = "https://www.nicovideo.jp/watch/sm41686885"
+        save_path = download_OGP_image(page_url, fp)
+        print(save_path)

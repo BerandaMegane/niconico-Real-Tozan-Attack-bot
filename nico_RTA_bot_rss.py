@@ -1,6 +1,7 @@
 # 公式
 import datetime
 import email.utils
+import tempfile
 import urllib.parse
 
 # サードパーティ
@@ -63,23 +64,21 @@ def tweet_RTA(sminfo: thumb_info):
     text1 = ""
     # text1 += "テスト投稿\n"
     text1 += "《 #リアル登山アタック 新着動画》\n"
-    text1 += sminfo.getTitle() + "\n"
-    text1 += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
+    text1 += "%s\n" % sminfo.getTitle()
+    text1 += "投稿者: %s さん\n" % sminfo.getAuthor()
     
-    text3 = ""
-    text3 += "#%s" % sminfo.sm_id + "\n"
-    text3 += sminfo.getURL()
+    text3 = "#%s %s" % (sminfo.sm_id, sminfo.getURL())
 
     # タグの量によっては140文字制限を超えるため、調節する
     tweet_text = text1 + text3
-    tags = sminfo.getTags()
-    for i in range(1, len(tags)+1):
-        text2 = "タグ: " + " ".join(tags[:i]) + "\n"
-        temp = text1 + text2 + text3
-        if parse_tweet(temp).valid:
-            tweet_text = text1 + text2 + text3
-        else:
-            break
+    # tags = sminfo.getTags()
+    # for i in range(1, len(tags)+1):
+    #     text2 = "タグ: %s\n" % (" ".join(tags[:i]))
+    #     temp = text1 + text2 + text3
+    #     if parse_tweet(temp).valid:
+    #         tweet_text = text1 + text2 + text3
+    #     else:
+    #         break
     
     # 認証と投稿
     auth = tweepy.OAuthHandler(TwitterAPI.consumer_key, TwitterAPI.consumer_secret)
@@ -88,8 +87,9 @@ def tweet_RTA(sminfo: thumb_info):
     api = tweepy.API(auth,wait_on_rate_limit=True)
     
     # OGP og:image よりサムネイル画像を指定する
-    image_path = ogp_image.download_OGP_image(sminfo.getURL(), "")
-    
+    fd, temp_path = tempfile.mkstemp()
+    image_path = ogp_image.download_OGP_image(sminfo.getURL(), temp_path)
+
     # サムネイル画像が取得できれば画像つきツイートを行う
     if image_path is not None:
         media_ids = [api.media_upload(image_path).media_id]
@@ -104,10 +104,9 @@ def toot_RTA(sminfo):
     # text += "開発中 テスト投稿\n"
     toot_text += "《 #リアル登山アタック 新着動画》\n"
     toot_text += sminfo.getTitle() + "\n"
-    toot_text += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
-    toot_text += "タグ: " + (" ".join(sminfo.getTags())) + "\n"
-    toot_text += "#%s" % sminfo.sm_id + "\n"
-    toot_text += sminfo.getURL()
+    toot_text += "投稿者: %s さん\n" % sminfo.getAuthor()
+    # toot_text += "タグ: %s\n" % (" ".join(sminfo.getTags()))
+    toot_text += "#%s %s" % (sminfo.sm_id, sminfo.getURL())
 
     # 認証と投稿
     api = Mastodon(

@@ -118,7 +118,7 @@ def toot_RTA(sminfo):
     api.toot(toot_text)
 
 
-def main(tag_list, run=False):
+def main(tag_list):
     """botの実行"""
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
@@ -143,20 +143,19 @@ def main(tag_list, run=False):
         # 動画がタグロックされていれば、追加する
         if sminfo.isTagsLock(tag_list):
             print(id, sminfo.getTitle(), "Locked")
-            if run:
-                try:
-                    tweet_RTA(sminfo)
-                except:
-                    pass
+            try:
+                tweet_RTA(sminfo)
+            except:
+                pass
 
-                try:
-                    toot_RTA(sminfo)
-                except:
-                    pass
+            try:
+                toot_RTA(sminfo)
+            except:
+                pass
         else:
             print(id, sminfo.getTitle(), "Unlocked")
 
-def test(tag_list, run=False):
+def test(tag_list):
     """botの実行"""
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
@@ -178,16 +177,15 @@ def test(tag_list, run=False):
         # 動画がタグロックされていれば、追加する
         if sminfo.isTagsLock(tag_list):
             print(id, sminfo.getTitle(), "Locked")
-            if run:
-                try:
-                    tweet_RTA(sminfo)
-                except:
-                    pass
+            try:
+                tweet_RTA(sminfo, True)
+            except:
+                pass
 
-                try:
-                    toot_RTA(sminfo)
-                except:
-                    pass
+            try:
+                toot_RTA(sminfo, True)
+            except:
+                pass
         else:
             print(id, sminfo.getTitle(), "Unlocked")
 
@@ -202,7 +200,7 @@ if __name__ == "__main__":
     ]
 
     # ツイートあり
-    main(tag_list, True)
+    main(tag_list)
 
     # ツイートなし
     # test(tag_list, False)

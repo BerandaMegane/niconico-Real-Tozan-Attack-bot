@@ -80,7 +80,7 @@ def searchTagsSnapshotApi(tag_list, begin_datetime, end_datetime) -> list:
     contents_ids = [str(x["contentId"]) for x in res.json()["data"]]
     return contents_ids
 
-def tweet_RTA(sminfo: thumb_info):
+def tweet_RTA(sminfo: thumb_info, debug=False):
     """指定した動画をTwitterでツイートする"""
     text1 = ""
     # text1 += "テスト投稿\n"
@@ -113,13 +113,21 @@ def tweet_RTA(sminfo: thumb_info):
         
     # サムネイル画像が取得できれば画像つきツイートを行う
     if image_path is not None:
-        media_ids = [api.media_upload(image_path).media_id]
-        api.update_status(status=tweet_text, media_ids=media_ids)
+        if debug:
+            print("【画像つきツイート】")
+            print(tweet_text)
+        else:
+            media_ids = [api.media_upload(image_path).media_id]
+            api.update_status(status=tweet_text, media_ids=media_ids)
     else:
-        api.update_status(status=tweet_text)
+        if debug:
+            print("【画像なしツイート】")
+            print(tweet_text)
+        else:
+            api.update_status(status=tweet_text)
 
 
-def toot_RTA(sminfo: thumb_info):
+def toot_RTA(sminfo: thumb_info, debug=False):
     """指定した動画をマストドンでトゥートする"""
 
     text = ""
@@ -139,7 +147,7 @@ def toot_RTA(sminfo: thumb_info):
     api.toot(text)
 
 
-def main(tag_list, run=False):
+def main(tag_list):
     """botの実行"""
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
@@ -160,27 +168,26 @@ def main(tag_list, run=False):
         # 動画がタグロックされていれば、追加する
         if sminfo.isTagsLock(tag_list):
             print(id, sminfo.getTitle(), "Locked")
-            if run:
-                try:
-                    tweet_RTA(sminfo)
-                except:
-                    pass
+            try:
+                tweet_RTA(sminfo)
+            except:
+                pass
 
-                try:
-                    toot_RTA(sminfo)
-                except:
-                    pass
+            try:
+                toot_RTA(sminfo)
+            except:
+                pass
         else:
             print(id, sminfo.getTitle(), "Unlocked")
 
 
-def test(tag_list, run=False):
+def test(tag_list):
     """botの実行"""
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
     now_dt = datetime.datetime.now(tz=JST)
-    begin_datetime = datetime.datetime(2023, 4, 21, 0, 0, 0, tzinfo=JST)
-    end_datetime   = datetime.datetime(2023, 4, 22, 0, 0, 0, tzinfo=JST)
+    begin_datetime = now_dt - datetime.timedelta(hours=24)
+    end_datetime   = now_dt
 
     # RTA動画の検索
     RTA_ids = searchTagsSnapshotApi(tag_list, begin_datetime, end_datetime)
@@ -195,16 +202,15 @@ def test(tag_list, run=False):
         # 動画がタグロックされていれば、追加する
         if sminfo.isTagsLock(tag_list):
             print(id, sminfo.getTitle(), "Locked")
-            if run:
-                try:
-                    tweet_RTA(sminfo)
-                except:
-                    pass
+            try:
+                tweet_RTA(sminfo, True)
+            except:
+                pass
 
-                try:
-                    toot_RTA(sminfo)
-                except:
-                    pass
+            try:
+                toot_RTA(sminfo, True)
+            except:
+                pass
         else:
             print(id, sminfo.getTitle(), "Unlocked")
 
@@ -219,7 +225,7 @@ if __name__ == "__main__":
     ]
 
     # ツイートあり
-    main(tag_list, True)
+    main(tag_list)
 
     # ツイートなし
     # test(tag_list, False)

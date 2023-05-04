@@ -219,7 +219,7 @@ if __name__ == "__main__":
     ]
 
     # ツイートあり
-    # main(tag_list, True)
+    main(tag_list, True)
 
     # ツイートなし
-    test(tag_list, False)
+    # test(tag_list, False)

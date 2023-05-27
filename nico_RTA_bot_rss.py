@@ -121,7 +121,7 @@ if __name__ == "__main__":
         "RTA(リアル登山アタック)外伝",
         "RTA(リアル登山アタック)団体戦",
         "RTA(リアル登山アタック)技術部",
-        "1分弱登山祭2023F",
+        "ニコニコ星まつり",
     ]
     bot = RSSBaseBot(secret.Environment.debug, tag_list)
 

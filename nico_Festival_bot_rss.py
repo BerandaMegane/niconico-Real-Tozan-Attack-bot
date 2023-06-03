@@ -49,7 +49,7 @@ class RSSBaseBot:
         return content_ids
 
     def searchRTA_RSS(self, begin_dt, end_dt):
-        """リアル登山アタック動画を RSS 経由で検索し、結果を返す"""
+        """動画を RSS 経由で検索し、結果を返す"""
         
         content_ids = list()
         for tag_name in self.tag_list:
@@ -63,7 +63,7 @@ class RSSBaseBot:
     def tweet_RTA(self, sminfo: nico_getthumbinfo):
         """指定した動画をTwitterでツイートする"""
         text = "テスト投稿\n" if self.debug else ""
-        text += "《 #リアル登山アタック 新着動画》\n"
+        text += "《 #ニコニコ星まつり・天体観測 新着動画》\n"
         text += "%s\n" % sminfo.getTitle()
         text += "投稿者: %s さん\n" % sminfo.getAuthor()
         text += "#%s %s" % (sminfo.sm_id, sminfo.getURL())
@@ -73,7 +73,7 @@ class RSSBaseBot:
     def toot_RTA(self, sminfo: nico_getthumbinfo):
         """指定した動画をマストドンでトゥートする"""
         text = "テスト投稿\n" if self.debug else ""
-        text += "《 #リアル登山アタック 動画》\n"
+        text += "《 #ニコニコ星まつり・天体観測 動画》\n"
         text += sminfo.getTitle() + "\n"
         text += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
         text += "#%s %s" % (sminfo.sm_id, sminfo.getURL())
@@ -117,10 +117,8 @@ def test_parse_RFC2822_datetime():
 if __name__ == "__main__":
 
     tag_list = [
-        "RTA(リアル登山アタック)",
-        "RTA(リアル登山アタック)外伝",
-        "RTA(リアル登山アタック)団体戦",
-        "RTA(リアル登山アタック)技術部",
+        "ニコニコ星まつり",
+        "天体観測",
     ]
     bot = RSSBaseBot(secret.Environment.debug, tag_list)
 

@@ -21,10 +21,11 @@ class RSSBaseBot:
         self.debug = debug
         self.tag_list = tag_list
         
+        print("動画投稿祭用bot", end="")
         if debug:
-            print("【デバッグモード】")
+            print("【デバッグモード】ツイートなし Dry Run")
         else:
-            print("【本番モード】")
+            print("【本番モード】ツイートあり")
 
     def parse_RFC2822_datetime(self, date_str_rfc2822: str):
         """RFC2822形式をパースする"""

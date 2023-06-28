@@ -6,6 +6,12 @@ class ManualBot:
     def __init__(self, debug) -> None:
         self.debug = debug
 
+        print("半自動 bot", end="")
+        if debug:
+            print("【デバッグモード】ツイートなし Dry Run")
+        else:
+            print("【本番モード】ツイートあり")
+
     def tweet_RTA(self, sminfo: nico_getthumbinfo):
         """指定した動画をTwitterでツイートする"""
         text = "テスト投稿\n" if self.debug else ""
@@ -28,9 +34,9 @@ class ManualBot:
 
 
 if __name__ == "__main__":
-    bot = ManualBot(debug=True)
+    bot = ManualBot(debug=False)
 
-    sm_id = "sm41887083"
+    sm_id = "sm42356685"
     sm_info = nico_getthumbinfo.SmileVideoInfo(sm_id)
     
     bot.tweet_RTA(sm_info)

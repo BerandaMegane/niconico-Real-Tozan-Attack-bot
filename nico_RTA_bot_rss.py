@@ -1,6 +1,7 @@
 # 公式
 import datetime
 import email.utils
+import traceback
 import urllib.parse
 
 # サードパーティ
@@ -21,10 +22,11 @@ class RSSBaseBot:
         self.debug = debug
         self.tag_list = tag_list
         
+        print("RSS bot", end="")
         if debug:
-            print("【デバッグモード】")
+            print("【デバッグモード】ツイートなし Dry Run")
         else:
-            print("【本番モード】")
+            print("【本番モード】ツイートあり")
 
     def parse_RFC2822_datetime(self, date_str_rfc2822: str):
         """RFC2822形式をパースする"""
@@ -97,12 +99,12 @@ class RSSBaseBot:
                 try:
                     self.tweet_RTA(sminfo)
                 except:
-                    pass
+                    traceback.print_exc()
 
                 try:
                     self.toot_RTA(sminfo)
                 except:
-                    pass
+                    traceback.print_exc()
             else:
                 print(id, sminfo.getTitle(), "Unlocked")
 

@@ -64,7 +64,7 @@ class RSSBaseBot:
     def tweet_RTA(self, sminfo: nico_getthumbinfo):
         """指定した動画をTwitterでツイートする"""
         text = "テスト投稿\n" if self.debug else ""
-        text += "《 #ニコニコ星まつり・天体観測 新着動画》\n"
+        text += "《 #ニコニコ星まつり 新着動画》\n"
         text += "%s\n" % sminfo.getTitle()
         text += "投稿者: %s さん\n" % sminfo.getAuthor()
         text += "#%s %s" % (sminfo.sm_id, sminfo.getURL())
@@ -74,7 +74,7 @@ class RSSBaseBot:
     def toot_RTA(self, sminfo: nico_getthumbinfo):
         """指定した動画をマストドンでトゥートする"""
         text = "テスト投稿\n" if self.debug else ""
-        text += "《 #ニコニコ星まつり・天体観測 動画》\n"
+        text += "《 #ニコニコ星まつり 動画》\n"
         text += sminfo.getTitle() + "\n"
         text += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
         text += "#%s %s" % (sminfo.sm_id, sminfo.getURL())
@@ -119,7 +119,8 @@ if __name__ == "__main__":
 
     tag_list = [
         "ニコニコ星まつり",
-        "天体観測",
+        "ニコニコ星まつり前夜祭",
+        "ニコニコ星まつり後夜祭",
     ]
     bot = RSSBaseBot(secret.Environment.debug, tag_list)
 

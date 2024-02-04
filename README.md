@@ -18,7 +18,7 @@ git clone https://github.com/BerandaMegane/niconico-Real-Tozan-Attack-bot.git
 2. venv 仮想環境の構築・アクティベート
 ```bash
 python -m venv venv
-./venv/Scripts/activate
+source ./venv/bin/activate
 ```
 
 2. 必要なPythonおよびライブラリをインストールします

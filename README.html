@@ -385,7 +385,7 @@ code {
 <li>venv 仮想環境の構築・アクティベート</li>
 </ol>
 <pre class="hljs"><code><div>python -m venv venv
-./venv/Scripts/activate
+<span class="hljs-built_in">source</span> ./venv/bin/activate
 </div></code></pre>
 <ol start="2">
 <li>必要なPythonおよびライブラリをインストールします</li>
@@ -393,7 +393,7 @@ code {
 <pre class="hljs"><code><div><span class="hljs-comment"># requirements.txt でインストール</span>
 pip install -r requirements.txt
 <span class="hljs-comment"># pip install で直接インストール</span>
-pip install bs4 feedparser Mastodon.py mojimoji requests tweepy twitter-text-parser urllib3
+pip install bs4 feedparser Mastodon.py mojimoji requests tweepy twitter-text-parser urllib3 pip-review
 </div></code></pre>
 <ol start="3">
 <li><code>secret-sample.py</code> を <code>secret.py</code> に名前を変更します</li>

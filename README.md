@@ -26,7 +26,7 @@ source ./venv/bin/activate
 # requirements.txt でインストール
 pip install -r requirements.txt
 # pip install で直接インストール
-pip install bs4 feedparser Mastodon.py mojimoji requests tweepy twitter-text-parser urllib3
+pip install bs4 feedparser Mastodon.py mojimoji requests tweepy twitter-text-parser urllib3 pip-review
 ```
 
 3. `secret-sample.py` を `secret.py` に名前を変更します

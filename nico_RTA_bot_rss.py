@@ -1,6 +1,7 @@
 # 公式
 import datetime
 import email.utils
+import sys
 import traceback
 import urllib.parse
 
@@ -10,26 +11,32 @@ import feedparser
 # 自作
 import nico_getthumbinfo
 import nico_RTA_bot
-import secret
-
-"""
-# RFC2822 形式の日付
-https://www.ytyng.com/blog/RFC2822%E5%BD%A2%E5%BC%8F%E3%81%AE%E6%97%A5%E4%BB%98%E3%82%92python%E3%81%AEdatetime%E3%81%AB%E5%A4%89%E6%8F%9B%E3%81%99%E3%82%8B/
-"""
 
 class RSSBaseBot:
-    def __init__(self, debug, tag_list) -> None:
-        self.debug = debug
+    def __init__(self, tag_list, is_debug=True, try_tweet=False) -> None:
+        self.is_debug = is_debug
         self.tag_list = tag_list
+        self.try_tweet = try_tweet
         
         print("RSS bot", end="")
-        if debug:
-            print("【デバッグモード】ツイートなし Dry Run")
+        if self.is_debug:
+            print("【デバッグモード】", end="")
         else:
-            print("【本番モード】ツイートあり")
+            print("【本番モード】", end="")
+        
+        if self.try_tweet:
+            print("ツイートあり")
+        else:
+            print("ツイートなし")
 
     def parse_RFC2822_datetime(self, date_str_rfc2822: str):
         """RFC2822形式をパースする"""
+
+        """
+        # 参考
+        ## RFC2822 形式の日付
+        https://www.ytyng.com/blog/RFC2822%E5%BD%A2%E5%BC%8F%E3%81%AE%E6%97%A5%E4%BB%98%E3%82%92python%E3%81%AEdatetime%E3%81%AB%E5%A4%89%E6%8F%9B%E3%81%99%E3%82%8B/
+        """
         timetuple = email.utils.parsedate_tz(date_str_rfc2822)
         JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
         date = datetime.datetime(*timetuple[:7], tzinfo=JST)
@@ -64,23 +71,23 @@ class RSSBaseBot:
 
     def tweet_RTA(self, sminfo: nico_getthumbinfo):
         """指定した動画をTwitterでツイートする"""
-        text = "テスト投稿\n" if self.debug else ""
+        text = "（デバッグ中）\n" if self.is_debug else ""
         text += "《 #リアル登山アタック 新着動画》\n"
         text += "%s\n" % sminfo.getTitle()
         text += "投稿者: %s さん\n" % sminfo.getAuthor()
         text += "#%s %s" % (sminfo.sm_id, sminfo.getURL())
 
-        nico_RTA_bot.tweet(text, sminfo.getURL(), self.debug)
+        nico_RTA_bot.tweet(text, sminfo.getURL(), self.try_tweet)
 
     def toot_RTA(self, sminfo: nico_getthumbinfo):
         """指定した動画をマストドンでトゥートする"""
-        text = "テスト投稿\n" if self.debug else ""
+        text = "（デバッグ中）\n" if self.is_debug else ""
         text += "《 #リアル登山アタック 動画》\n"
         text += sminfo.getTitle() + "\n"
         text += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
         text += "#%s %s" % (sminfo.sm_id, sminfo.getURL())
 
-        nico_RTA_bot.toot(text, sminfo.getURL(), self.debug)
+        nico_RTA_bot.toot(text, sminfo.getURL(), self.try_tweet)
 
     def main(self, begin_dt, end_dt):
         # RTA動画の検索
@@ -113,10 +120,14 @@ def test_parse_RFC2822_datetime():
     test_date_str = "Sat, 11 Feb 2023 11:44:41 +0900"
     print(test_date_str)
 
-    bot = RSSBaseBot(secret.Environment.debug, tag_list)
+    bot = RSSBaseBot(tag_list)
     print(bot.parse_RFC2822_datetime(test_date_str))
 
 if __name__ == "__main__":
+    if len(sys.argv) >= 2 and sys.argv[1] == "product":
+        is_debug = False
+    else :
+        is_debug = True
 
     tag_list = [
         "RTA(リアル登山アタック)",
@@ -124,13 +135,13 @@ if __name__ == "__main__":
         "RTA(リアル登山アタック)団体戦",
         "RTA(リアル登山アタック)技術部",
     ]
-    bot = RSSBaseBot(secret.Environment.debug, tag_list)
+    bot = RSSBaseBot(tag_list, is_debug=is_debug, try_tweet=True)
 
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
     now_dt = datetime.datetime.now(tz=JST)
 
-    if secret.Environment.debug:
+    if is_debug:
         # デバッグ時の期間指定
         begin_dt = now_dt - datetime.timedelta(hours=72)
         end_dt = now_dt

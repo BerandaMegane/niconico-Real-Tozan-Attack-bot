@@ -31,7 +31,7 @@ def get_MastodonAPI_handler(config):
         access_token  = config.access_token
     )
 
-def tweet(tweet_text, image_url, debug=True):
+def tweet(tweet_text, image_url, try_tweet=False):
     # ログ用
     print("【ツイート】")
     print(tweet_text)
@@ -39,7 +39,7 @@ def tweet(tweet_text, image_url, debug=True):
     # 一時ファイルに画像ダウンロード
     with tempfile.NamedTemporaryFile() as fp:
         image_path = ogp_image.download_OGP_image(image_url, fp)
-        if not debug:    
+        if try_tweet:
             api, client = get_TwitterAPI_handler(secret.TwitterAPI)
             if image_path is not None:
                 media_ids = [api.media_upload(image_path, file=fp).media_id]
@@ -47,11 +47,11 @@ def tweet(tweet_text, image_url, debug=True):
             else:
                 client.create_tweet(text=tweet_text)
 
-def toot(toot_text, image_url, debug=True):
+def toot(toot_text, image_url, try_tweet=False):
     # ログ用
     print("【トゥート】")
     print(toot_text)
 
-    if not debug:    
+    if try_tweet:
         api = get_MastodonAPI_handler(secret.MastodonAPI)
         api.toot(toot_text)

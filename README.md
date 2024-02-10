@@ -5,8 +5,9 @@
 
 ## 運用について
 ### リアル登山アタック新着bot @RTA_BaseCamp
-* https://twitter.com/RTA_BaseCamp
-* https://mastodon-japan.net/@RTA_BaseCamp
+* Twitter - https://twitter.com/RTA_BaseCamp
+* Bluesky - https://bsky.app/profile/rta-basecamp.bsky.social
+* Mastodon - https://mastodon-japan.net/@RTA_BaseCamp
 
 ## 使用方法 (Linux)
 環境構築から使用するまでを紹介します。
@@ -26,7 +27,7 @@ source ./venv/bin/activate
 # requirements.txt でインストール
 pip install -r requirements.txt
 # pip install で直接インストール
-pip install bs4 feedparser Mastodon.py mojimoji requests tweepy twitter-text-parser urllib3 pip-review
+pip install bs4 feedparser Mastodon.py mojimoji requests tweepy twitter-text-parser urllib3 pip-review atproto
 ```
 
 3. `secret-sample.py` を `secret.py` に名前を変更します

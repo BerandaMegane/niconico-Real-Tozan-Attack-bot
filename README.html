@@ -406,16 +406,18 @@ pip install bs4 feedparser Mastodon.py mojimoji requests tweepy twitter-text-par
 <pre class="hljs"><code><div>vi secret.py
 </div></code></pre>
 <ol start="5">
-<li><code>nico_RTA_bot_rss.py</code> または <code>nico_RTA_bot_snapshot.py</code> を定期実行します</li>
+<li><code>bot_RTA_main.py</code> または <code>bot_Festival_main.py</code> を定期実行します</li>
 </ol>
 <pre class="hljs"><code><div>sudo vi /etc/crontab
 </div></code></pre>
-<pre class="hljs"><code><div># 1日ごとに実行
-0 20 *  *  *  ubuntu /usr/bin/python3 /[path]/nico_RTA_bot_snapshot.py
-# 10分ごとに実行
-*/10 *  *  *  *  ubuntu /usr/bin/python3 /[path]/nico_RTA_bot_rss.py
+<pre class="hljs"><code><div># 10分ごとに実行
+*/10 *  *  *  *  ubuntu /usr/bin/python3 /[path]/bot_RTA_main.py
+*/10 *  *  *  *  ubuntu /usr/bin/python3 /[path]/bot_Festival_main.py
 </div></code></pre>
-<p>なお、<code>nico_RTA_bot_rss.py</code> は10分ごと、<code>nico_RTA_bot_snapshot.py</code>は1日ごとに実行することを想定しています。</p>
+<h2 id="%E3%83%A9%E3%82%A4%E3%83%96%E3%83%A9%E3%83%AA%E3%82%A2%E3%83%83%E3%83%97%E3%83%87%E3%83%BC%E3%83%88">ライブラリアップデート</h2>
+<p>pip-review を使って Python ライブラリを一括アップデートできます。</p>
+<pre class="hljs"><code><div>pip-review --auto
+</div></code></pre>
 <h2 id="%E5%8B%95%E4%BD%9C%E3%81%AB%E5%BF%85%E8%A6%81%E3%81%AA%E3%83%A9%E3%82%A4%E3%83%96%E3%83%A9%E3%83%AA%E7%AD%89">動作に必要なライブラリ等</h2>
 <p>requirements.txt を参照してください。</p>
 <h2 id="%E9%80%A3%E7%B5%A1%E5%85%88">連絡先</h2>

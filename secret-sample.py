@@ -17,3 +17,7 @@ class MastodonAPI:
     client_key = ""
     client_secret = ""
     access_token = ""
+
+class BlueskyAPI:
+    email = ""
+    password = ""

@@ -7,7 +7,7 @@ import nico_RTA_bot
 
 if __name__ == "__main__":
     is_debug = not ("product" in sys.argv)
-    try_tweet = "try_tweet" in sys.argv
+    try_post = "try_post" in sys.argv
 
     tag_list = [
         "RTA(リアル登山アタック)",
@@ -15,7 +15,7 @@ if __name__ == "__main__":
         "RTA(リアル登山アタック)団体戦",
         "RTA(リアル登山アタック)技術部",
     ]
-    bot = nico_RTA_bot.RSSBaseBot(tag_list, "#リアル登山アタック", is_debug=is_debug, try_tweet=try_tweet)
+    bot = nico_RTA_bot.RSSBaseBot(tag_list, "#リアル登山アタック", is_debug=is_debug, try_post=try_post)
 
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     if bot.is_debug:
         # デバッグ時の期間指定
-        begin_dt = now_dt - datetime.timedelta(days=1)
+        begin_dt = now_dt - datetime.timedelta(days=0, hours=17)
         end_dt = now_dt
 
     else:    

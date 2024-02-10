@@ -7,16 +7,18 @@ import nico_RTA_bot
 
 if __name__ == "__main__":
     is_debug = not ("product" in sys.argv)
-    try_tweet = "try_tweet" in sys.argv
+    try_post = "try_post" in sys.argv
 
     tag_list = [
         "ニコニコ登山祭",
+        "ニコニコ登山祭前夜祭",
+        "ニコニコ登山祭後夜祭",
         "ニコニコ登山祭：１分弱",
         "ニコニコ登山祭：リアル登山アタック",
         "ニコニコ登山祭：蔵出し",
         "ニコニコ登山祭：ノンキャラクター",
     ]
-    bot = nico_RTA_bot.RSSBaseBot(tag_list, "#ニコニコ登山祭", is_debug=is_debug, try_tweet=try_tweet)
+    bot = nico_RTA_bot.RSSBaseBot(tag_list, "#ニコニコ登山祭", is_debug=is_debug, try_post=try_post)
 
     # 日付の指定
     JST = datetime.timezone(datetime.timedelta(hours=9), "JST")

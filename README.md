@@ -39,18 +39,23 @@ mv secret-sample.py secret.py
 vi secret.py
 ```
 
-5. `nico_RTA_bot_rss.py` または `nico_RTA_bot_snapshot.py` を定期実行します
+5. `bot_RTA_main.py` または `bot_Festival_main.py` を定期実行します
 ```bash
 sudo vi /etc/crontab
 ```
+
 ```
-# 1日ごとに実行
-0 20 *  *  *  ubuntu /usr/bin/python3 /[path]/nico_RTA_bot_snapshot.py
 # 10分ごとに実行
-*/10 *  *  *  *  ubuntu /usr/bin/python3 /[path]/nico_RTA_bot_rss.py
+*/10 *  *  *  *  ubuntu /usr/bin/python3 /[path]/bot_RTA_main.py
+*/10 *  *  *  *  ubuntu /usr/bin/python3 /[path]/bot_Festival_main.py
 ```
 
-なお、`nico_RTA_bot_rss.py` は10分ごと、`nico_RTA_bot_snapshot.py`は1日ごとに実行することを想定しています。
+## ライブラリアップデート
+pip-review を使って Python ライブラリを一括アップデートできます。
+
+```
+pip-review --auto
+```
 
 ## 動作に必要なライブラリ等
 requirements.txt を参照してください。

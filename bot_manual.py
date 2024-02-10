@@ -21,7 +21,7 @@ class ManualBot:
         text += "投稿者: %s さん\n" % sminfo.getAuthor()
         text += "#%s %s" % (sminfo.sm_id, sminfo.getURL())
 
-        nico_RTA_bot.tweet(text, sminfo.getURL(), try_tweet=self.try_tweet)
+        nico_RTA_bot.post_twitter(text, sminfo.getURL(), try_post=self.try_tweet)
 
     def toot_RTA(self, sminfo: nico_getthumbinfo):
         """指定した動画をマストドンでトゥートする"""
@@ -31,7 +31,7 @@ class ManualBot:
         text += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
         text += "#%s %s" % (sminfo.sm_id, sminfo.getURL())
 
-        nico_RTA_bot.toot(text, sminfo.getURL(), try_tweet=self.try_tweet)
+        nico_RTA_bot.post_mastodon(text, sminfo.getURL(), try_post=self.try_tweet)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ import traceback
 import urllib.parse
 
 # サードパーティ
+import atproto
 import feedparser
 import mastodon
 import tweepy
@@ -37,30 +38,54 @@ def get_MastodonAPI_handler(config):
         access_token  = config.access_token
     )
 
-def tweet(tweet_text, image_url, try_tweet=False):
+def get_BlueskyAPI_handler(config):
+    # Bluesky メールアドレス認証
+    client = atproto.Client()
+    client.login(config.email, config.password)
+    return client
+
+def post_twitter(post_text, image_url, try_post=False):
     # ログ用
-    print("【ツイート】")
-    print(tweet_text)
+    print("【Twitter】")
+    print(post_text)
     
-    # 一時ファイルに画像ダウンロード
-    with tempfile.NamedTemporaryFile() as fp:
-        image_path = ogp_image.download_OGP_image(image_url, fp)
-        if try_tweet:
-            api, client = get_TwitterAPI_handler(secret.TwitterAPI)
+    if try_post:
+        api, client = get_TwitterAPI_handler(secret.TwitterAPI)
+        
+        with tempfile.NamedTemporaryFile() as fp:
+            # 一時ファイルにサムネイル画像ダウンロード
+            image_path = ogp_image.download_OGP_image(image_url, fp)
+            
             if image_path is not None:
                 media_ids = [api.media_upload(image_path, file=fp).media_id]
-                client.create_tweet(text=tweet_text, media_ids=media_ids)
+                client.create_tweet(text=post_text, media_ids=media_ids)
             else:
-                client.create_tweet(text=tweet_text)
+                client.create_tweet(text=post_text)
 
-def toot(toot_text, image_url, try_tweet=False):
+def post_mastodon(post_text, image_url, try_post=False):
     # ログ用
-    print("【トゥート】")
-    print(toot_text)
+    print("【Mastodon】")
+    print(post_text)
 
-    if try_tweet:
+    if try_post:
         api = get_MastodonAPI_handler(secret.MastodonAPI)
-        api.toot(toot_text)
+        api.toot(post_text)
+
+def post_bluesky(post_text, image_url, image_alt, try_post=False):
+    # ログ用
+    print("【Bluesky】")
+    print(post_text)
+
+    if try_post:
+        client = get_BlueskyAPI_handler(secret.BlueskyAPI)
+
+        with tempfile.NamedTemporaryFile() as fp:
+            # 一時ファイルにサムネイル画像をダウンロード
+            image_path = ogp_image.download_OGP_image(image_url, fp)
+            if image_path is not None:
+                client.send_image(post_text, fp, image_alt)
+            else:
+                client.send_post(post_text)
 
 def parse_RFC2822_datetime(date_str_rfc2822: str):
     """RFC2822形式をパースする"""
@@ -81,11 +106,11 @@ def test_parse_RFC2822_datetime():
     print(parse_RFC2822_datetime(test_date_str))
 
 class RSSBaseBot:
-    def __init__(self, tag_list, hashtag, is_debug=True, try_tweet=False) -> None:
+    def __init__(self, tag_list, hashtag, is_debug=True, try_post=False) -> None:
         self.tag_list = tag_list
         self.hashtag = hashtag
         self.is_debug = is_debug
-        self.try_tweet = try_tweet
+        self.try_post = try_post
         
         print("RSS bot", end="")
         if self.is_debug:
@@ -93,7 +118,7 @@ class RSSBaseBot:
         else:
             print("【本番モード】", end="")
         
-        if self.try_tweet:
+        if self.try_post:
             print("ツイートあり")
         else:
             print("ツイートなし")
@@ -125,7 +150,7 @@ class RSSBaseBot:
 
         return content_ids
 
-    def tweet_RTA(self, sminfo: nico_getthumbinfo):
+    def post_twitter_RTA(self, sminfo: nico_getthumbinfo):
         
         """指定した動画をTwitterでツイートする"""
         text = "（デバッグ中）\n" if self.is_debug else ""
@@ -134,9 +159,9 @@ class RSSBaseBot:
         text += "投稿者: %s さん\n" % sminfo.getAuthor()
         text += "#%s %s" % (sminfo.sm_id, sminfo.getURL())
 
-        tweet(text, sminfo.getURL(), self.try_tweet)
+        post_twitter(text, sminfo.getURL(), self.try_post)
 
-    def toot_RTA(self, sminfo: nico_getthumbinfo):
+    def post_mastodon_RTA(self, sminfo: nico_getthumbinfo):
         """指定した動画をマストドンでトゥートする"""
         text = "（デバッグ中）\n" if self.is_debug else ""
         text += "《 %s 新着 》\n" % self.hashtag
@@ -144,7 +169,21 @@ class RSSBaseBot:
         text += "投稿者: %s" % sminfo.getAuthor() + " さん\n"
         text += "#%s %s" % (sminfo.sm_id, sminfo.getURL())
 
-        toot(text, sminfo.getURL(), self.try_tweet)
+        post_mastodon(text, sminfo.getURL(), self.try_post)
+
+    def post_bluesky_RTA(self, sminfo: nico_getthumbinfo):
+        """指定した動画を Bluesky にポストする"""
+        text = "（デバッグ中）\n" if self.is_debug else ""
+        text += "《 %s 新着 》\n" % self.hashtag
+        text += "%s\n" % sminfo.getTitle()
+        text += "投稿者: %s さん\n" % sminfo.getAuthor()
+        text += "#%s %s" % (sminfo.sm_id, sminfo.getURL())
+
+        image_alt = "投稿者: %s さん\n" % sminfo.getAuthor()
+        image_alt += "%s\n" % sminfo.getTitle()
+        image_alt += "%s" % sminfo.getURL()
+
+        post_bluesky(text, sminfo.getURL(), image_alt, self.try_post)
 
     def main(self, begin_dt, end_dt):
         # RTA動画の検索
@@ -162,12 +201,17 @@ class RSSBaseBot:
             if sminfo.isTagsLock(self.tag_list):
                 print("ヒット（タグロック済み）", id, sminfo.getTitle())
                 try:
-                    self.tweet_RTA(sminfo)
+                    self.post_twitter_RTA(sminfo)
                 except:
                     traceback.print_exc()
 
                 try:
-                    self.toot_RTA(sminfo)
+                    self.post_mastodon_RTA(sminfo)
+                except:
+                    traceback.print_exc()
+
+                try:
+                    self.post_bluesky_RTA(sminfo)
                 except:
                     traceback.print_exc()
             else:
